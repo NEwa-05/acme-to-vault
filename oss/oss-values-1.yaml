@@ -1,0 +1,81 @@
+deployment:
+  replicas: 1
+  initContainers:
+    - name: volume-permissions
+      image: busybox:latest
+      command: ["sh", "-c", "touch /data/acme.json; chmod -v 600 /data/acme.json"]
+      volumeMounts:
+      - mountPath: /data
+        name: data
+ingressClass:
+  enabled: true
+  isDefaultClass: false
+  name: "traefik-1"
+podSecurityContext:
+  runAsGroup: 65532
+  runAsNonRoot: true
+  runAsUser: 65532
+  fsGroup: 65532
+  fsGroupChangePolicy: "OnRootMismatch"
+persistence:
+  enabled: true
+  name: data
+  accessMode: ReadWriteOnce
+  size: 128Mi
+  path: /data
+ingressRoute:
+  dashboard:
+    enabled: false
+ingressClass:
+  enabled: false
+providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: true
+    allowExternalNameServices: true
+    allowEmptyServices: true
+    ingressClass: traefik-1
+logs:
+  general:
+    format: json
+    level: DEBUG
+  access:
+    enabled: true
+    format: json
+    addInternals: false
+    fields:
+      general:
+        defaultmode: keep
+      headers:
+        defaultmode: keep
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: "app.kubernetes.io/name"
+                operator: In
+                values:
+                  - traefik
+          topologyKey: kubernetes.io/hostname
+        weight: 100
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
+  limits:
+    memory: 256Mi
+    cpu: 100m
+ports:
+  websecure:
+    tls:
+      enabled: true
+      certResolver: le
+certificatesResolvers:
+  le:
+    acme:
+      tlschallenge: true
+      email: david.blaskow@traefik.io
+      storage: /data/acme.json
+      certificatesDuration: 61

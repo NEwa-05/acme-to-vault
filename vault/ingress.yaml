@@ -1,0 +1,18 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: vault-ingress
+  namespace: vault
+  annotations:
+    kubernetes.io/ingress.class: traefik-1
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`vault.1.${CLUSTERNAME}.${DOMAINNAME}`)
+      services:
+        - name: vault-ui
+          port: 8200
+  tls:
+    certResolver: le

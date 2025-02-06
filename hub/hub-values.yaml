@@ -1,0 +1,74 @@
+
+image:
+  registry: ghcr.io
+  repository: traefik/traefik-hub
+  tag: "v3"
+deployment:
+  replicas: 1
+ingressRoute:
+  dashboard:
+    enabled: false
+ingressClass:
+  enabled: true
+  isDefaultClass: false
+  name: "traefikhub"
+providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: true
+    allowExternalNameServices: true
+    allowEmptyServices: true
+    ingressClass: traefikhub
+logs:
+  general:
+    format: json
+    level: DEBUG
+  access:
+    enabled: true
+    format: json
+    addInternals: false
+    fields:
+      general:
+        defaultmode: keep
+      headers:
+        defaultmode: keep
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: "app.kubernetes.io/name"
+                operator: In
+                values:
+                  - traefik
+          topologyKey: kubernetes.io/hostname
+        weight: 100
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
+  limits:
+    memory: 256Mi
+    cpu: 100m
+tlsStore:
+  default:
+    defaultCertificate:
+      secretName: wildcard-cert
+ports:
+  websecure:
+    tls:
+      enabled: true
+      certResolver: le
+additionalArguments:
+  - '--certificatesresolvers.le.distributedAcme=true'
+  - '--certificatesresolvers.le.distributedAcme.email=david.blaskow@traefik.io'
+  - '--certificatesresolvers.le.distributedAcme.tlschallenge=true'
+  - '--certificatesresolvers.le.distributedAcme.storage.vault.url=http://vault.vault.svc.cluster.local:8200'
+  - '--certificatesresolvers.le.distributedAcme.storage.vault.enginePath=hubcerts'
+  - '--certificatesresolvers.le.distributedAcme.storage.vault.auth.token=root'
+  - '--certificatesresolvers.le.distributedAcme.certificatesDuration=61'
+hub:
+  token: hub-license
+  apimanagement:
+    enabled: false
