@@ -5,8 +5,7 @@ metadata:
   name: whoami-ingress
   namespace: whoami-2
   annotations:
-    # kubernetes.io/ingress.class: traefik-2
-    kubernetes.io/ingress.class: traefikhub
+    kubernetes.io/ingress.class: traefik-2
 spec:
   entryPoints:
     - websecure
