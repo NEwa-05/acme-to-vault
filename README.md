@@ -185,7 +185,7 @@ chmod 600 data/acme.json
 ### Push certs to Vaults
 
 ```bash
-docker run --net=host --volume $(pwd)/data:/data europe-west9-docker.pkg.dev/traefiklabs/traefik-hub/traefik-hub:pr-390 migrate-acme --source.acme.storage=/data/acme.json --destination.distributedAcme.storage.vault.url=https://vault.1.${CLUSTERNAME}.${DOMAINNAME} --destination.distributedAcme.storage.vault.enginePath=hubcerts --destination.distributedAcme.storage.vault.auth.token=root --resolverName=le --force
+docker run --net=host --volume $(pwd)/data:/data europe-west9-docker.pkg.dev/traefiklabs/traefik-hub/traefik-hub:latest-v3 migrate-acme --source.acme.storage=/data/acme.json --destination.distributedAcme.storage.vault.url=https://vault.1.${CLUSTERNAME}.${DOMAINNAME} --destination.distributedAcme.storage.vault.enginePath=hubcerts --destination.distributedAcme.storage.vault.auth.token=root --resolverName=le --force
 ```
 
 ### Deploy dashboard ingress
